@@ -9,7 +9,7 @@ import { HttpErrorService } from '../utilities/http-error.service';
   providedIn: 'root'
 })
 export class ProductService {
-  private productsUrl = 'api/productss';
+  private productsUrl = 'api/products';
 
   // ctor-based DI
   // constructor(private http: HttpClient) {}
@@ -34,6 +34,7 @@ export class ProductService {
     return this.http.get<Product>(productUrl)
     .pipe(
       tap(() => console.log(`In http.get by id pipeline`)),
+      catchError((error => this.handleError(error)))
     );
   }
 

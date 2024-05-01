@@ -1,4 +1,4 @@
-<div class="card"
+<div class="card ms-0"
      *ngIf="product">
   <div class="card-header">
     {{pageTitle}}
@@ -55,14 +55,13 @@
   </div>
 </div>
 
-<div class="card"
+<div class="card ms-0"
      *ngIf="errorMessage">
   <div class="card-header">
     Product Detail
   </div>
 </div>
-  <div class="alert alert-danger"
+  <div class="alert alert-danger mt-1"
      *ngIf="errorMessage">
     {{errorMessage}}
-
 </div>
