@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, EMPTY, Observable, catchError, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, catchError, filter, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { Product } from './product';
 import { ProductData } from './product-data';
 import { HttpErrorService } from '../utilities/http-error.service';
@@ -34,15 +34,19 @@ export class ProductService {
     catchError((error => this.handleError(error)))
   );
 
-  getProduct(id: number): Observable<Product> {
-    const productUrl = `${this.productsUrl}/${id}`;
-    return this.http.get<Product>(productUrl)
+  readonly product$ = this.productSelected$
     .pipe(
-      tap((p) => console.log(`In http.get by id pipeline`)),
-      switchMap(product => this.getProductWithReviews(product)),
-      catchError((error => this.handleError(error)))
+      // use filter operator to check if return data is undefined or null
+      filter(Boolean),
+      switchMap(id => {
+        const productUrl = `${this.productsUrl}/${id}`;
+        return this.http.get<Product>(productUrl)
+          .pipe(
+            switchMap(product => this.getProductWithReviews(product)),
+            catchError((error => this.handleError(error)))
+          );
+      })
     );
-  }
 
   productSelected(selectedProductId: number): void {
     this.productSelectedSubject.next(selectedProductId);
