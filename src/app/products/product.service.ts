@@ -20,17 +20,16 @@ export class ProductService {
   private errorService = inject(HttpErrorService);
   private reviewService = inject(ReviewService);
 
-  getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.productsUrl)
-    .pipe(
-      tap(() => console.log(`In http.get pipeline`)),
-      catchError((error => this.handleError(error)))
-      // catchError(error => {
-      //   console.error(error);
-      //   return of(ProductData.products);
-      // })
-    );
-  }
+  // use declarative approach
+  readonly products$ = this.http.get<Product[]>(this.productsUrl)
+  .pipe(
+    tap(() => console.log(`In http.get pipeline`)),
+    catchError((error => this.handleError(error)))
+    // catchError(error => {
+    //   console.error(error);
+    //   return of(ProductData.products);
+    // })
+  );
 
   getProduct(id: number): Observable<Product> {
     const productUrl = `${this.productsUrl}/${id}`;
