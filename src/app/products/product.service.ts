@@ -1,9 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
+import { EMPTY, Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { Product } from './product';
 import { ProductData } from './product-data';
 import { HttpErrorService } from '../utilities/http-error.service';
+import { ReviewService } from '../reviews/review.service';
+import { Review } from '../reviews/review';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +18,7 @@ export class ProductService {
   // NG14+ function injection
   private http = inject(HttpClient);
   private errorService = inject(HttpErrorService);
+  private reviewService = inject(ReviewService);
 
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.productsUrl)
@@ -36,6 +39,17 @@ export class ProductService {
       tap(() => console.log(`In http.get by id pipeline`)),
       catchError((error => this.handleError(error)))
     );
+  }
+
+  private getProductWithReviews(product: Product): Observable<Product> {
+    if (product.hasReviews) {
+      return this.http.get<Review[]>(this.reviewService.getReviewUrl(product.id))
+      .pipe(
+        map(reviews => ({...product, reviews } as Product))
+      );
+    } else {
+      return of(product);
+    } 
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
