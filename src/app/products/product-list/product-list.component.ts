@@ -32,6 +32,7 @@ export class ProductListComponent{
   selectedProductId: number = 0;
 
   onSelected(productId: number): void {
-    this.selectedProductId = productId;
+    // this.selectedProductId = productId;
+    this.productService.productSelected(productId);
   }
 }
