@@ -12,5 +12,9 @@ export const routes: Routes = [
     path: 'cart',
     loadComponent: () => import('./cart/cart-shell/cart-shell.component').then(c => c.CartShellComponent)
   },
+  {
+    path: 'signaltest',
+    loadComponent: () => import('./signal-test/signal-test.component').then(c => c.SignalTestComponent)
+  },
   { path: '', redirectTo: 'welcome', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }];
