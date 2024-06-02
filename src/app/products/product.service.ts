@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, EMPTY, Observable, catchError, filter, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, catchError, combineLatest, filter, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { Product } from './product';
 import { ProductData } from './product-data';
 import { HttpErrorService } from '../utilities/http-error.service';
@@ -34,7 +34,7 @@ export class ProductService {
     catchError((error => this.handleError(error)))
   );
 
-  readonly product$ = this.productSelected$
+  readonly product1$ = this.productSelected$
     .pipe(
       // use filter operator to check if return data is undefined or null
       filter(Boolean),
@@ -47,6 +47,19 @@ export class ProductService {
           );
       })
     );
+
+  product$ = combineLatest([
+    this.productSelected$,
+    this.products$
+  ]).pipe(
+    // tap(x => x)
+    map(([selectedProductId, products]) => 
+      products.find(product => product.id === selectedProductId)
+    ),
+    filter(Boolean),
+    switchMap(product => this.getProductWithReviews(product)),
+    catchError(error => this.handleError(error))
+  );
 
   productSelected(selectedProductId: number): void {
     this.productSelectedSubject.next(selectedProductId);
