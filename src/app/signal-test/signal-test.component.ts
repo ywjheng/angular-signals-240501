@@ -19,6 +19,7 @@ export class SignalTestComponent {
   });
   exPrice = computed(() => this.selectedProduct().price * this.quantity());
   color = computed(() => this.exPrice() > 50 ? 'green' : 'blue');
+  e = effect(() => console.log(`In effect, price: ${this.exPrice()}`));
 
   constructor() {
     console.log(`In constructor: ${this.quantity()}`);
@@ -30,7 +31,7 @@ export class SignalTestComponent {
     this.quantity.set(qty);
   }
 }
-
+ 
 export interface Product {
   id: number;
   name: string;
