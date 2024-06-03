@@ -1,4 +1,4 @@
-import { Component, effect, signal } from '@angular/core';
+import { Component, computed, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -17,6 +17,8 @@ export class SignalTestComponent {
     name: 'Hammer',
     price: 12
   });
+  exPrice = computed(() => this.selectedProduct().price * this.quantity());
+  color = computed(() => this.exPrice() > 50 ? 'green' : 'blue');
 
   constructor() {
     console.log(`In constructor: ${this.quantity()}`);

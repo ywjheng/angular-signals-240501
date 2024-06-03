@@ -10,3 +10,4 @@
 <div>{{ quantity() }}</div>
 <div>Product: {{ selectedProduct().name }}</div>
 <div>Price: {{ selectedProduct().price }}</div>
+<div [style.color]="color()">Extended Price: {{ exPrice() | currency }}</div>
