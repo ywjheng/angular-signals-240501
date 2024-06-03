@@ -33,7 +33,8 @@ export class ProductListComponent{
   // Selected product id to highlight the entry
   // create a local variable that only bind from a template to a component, 
   //   NOT a template to a service
-  readonly selectedProductId$ = this.productService.productSelected$;
+  // readonly selectedProductId$ = this.productService.productSelected$;
+  selectedProductId = this.productService.selectedProductId;
 
   onSelected(productId: number): void {
     // this.selectedProductId = productId;

@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable, computed, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { BehaviorSubject, EMPTY, Observable, catchError, combineLatest, filter, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { Product, Result } from './product';
 import { ProductData } from './product-data';
@@ -25,6 +25,7 @@ export class ProductService {
   private productSelectedSubject = new BehaviorSubject<number | undefined>(undefined);
   // expose this observable as public property for other code in the application to subscribe
   readonly productSelected$ = this.productSelectedSubject.asObservable();
+  selectedProductId = signal<number | undefined>(undefined);
 
   // use declarative approach
   private productsResult$ = this.http.get<Product[]>(this.productsUrl)
@@ -81,6 +82,7 @@ export class ProductService {
 
   productSelected(selectedProductId: number): void {
     this.productSelectedSubject.next(selectedProductId);
+    this.selectedProductId.set(selectedProductId);
   }
 
   private getProductWithReviews(product: Product): Observable<Product> {
