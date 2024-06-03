@@ -16,7 +16,16 @@ export class CartService {
 
   addToCart(product: Product): void {
     // this.cartItems().push({ product, quantity: 1});
-    this.cartItems.update(items => [...items, { product, quantity: 1}]);
+    const index = this.cartItems().findIndex(item => item.product.id === product.id);
+    if (index === -1) {
+      this.cartItems.update(items => [...items, { product, quantity: 1}]);
+    } else {
+      this.cartItems.update(items => [
+        ...items.slice(0, index),
+        {...items[index], quantity: items[index].quantity + 1},
+        ...items.slice(index + 1)
+      ]);
+    }
   }
 
   removeFromCart(cartItem: CartItem): void {
