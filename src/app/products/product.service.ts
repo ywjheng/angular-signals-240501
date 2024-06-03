@@ -6,7 +6,7 @@ import { ProductData } from './product-data';
 import { HttpErrorService } from '../utilities/http-error.service';
 import { ReviewService } from '../reviews/review.service';
 import { Review } from '../reviews/review';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
@@ -22,9 +22,9 @@ export class ProductService {
   private reviewService = inject(ReviewService);
 
   // add private keyword to ensure that no code in the application accesses this BehaviorSubject except code within this service
-  private productSelectedSubject = new BehaviorSubject<number | undefined>(undefined);
   // expose this observable as public property for other code in the application to subscribe
-  readonly productSelected$ = this.productSelectedSubject.asObservable();
+  // private productSelectedSubject = new BehaviorSubject<number | undefined>(undefined);
+  // readonly productSelected$ = this.productSelectedSubject.asObservable();
   selectedProductId = signal<number | undefined>(undefined);
 
   // use declarative approach
@@ -41,7 +41,8 @@ export class ProductService {
     } as Result<Product[]>))
   );
 
-  private productsResult = toSignal(this.productsResult$, { initialValue: ({ data: [] } as Result<Product[]>) });
+  private productsResult = toSignal(this.productsResult$, 
+    { initialValue: ({ data: [] } as Result<Product[]>) });
 
   products = computed(() => this.productsResult().data);
   productsError = computed(() => this.productsResult().error);
@@ -53,7 +54,7 @@ export class ProductService {
   //   }
   // });
 
-  readonly product$ = this.productSelected$
+  private productResult$ = toObservable(this.selectedProductId)
     .pipe(
       // use filter operator to check if return data is undefined or null
       filter(Boolean),
@@ -62,10 +63,49 @@ export class ProductService {
         return this.http.get<Product>(productUrl)
           .pipe(
             switchMap(product => this.getProductWithReviews(product)),
-            catchError((error => this.handleError(error)))
+            // catchError((error => this.handleError(error)))
+            catchError(error => of({
+              data: undefined,
+              error: this.errorService.formatError(error)
+            } as Result<Product>))
           );
-      })
+      }),
+      map(p => ({ data : p } as Result<Product>))
     );
+
+  // Find the product in the existing array of products
+  private foundProduct = computed(() => {
+    // Dependent signals
+    const p = this.products();
+    const id = this.selectedProductId();
+    if (p && id) {
+      return p.find(product => product.id === id);
+    }
+    return undefined;
+  });
+
+
+  private productResult1$ = toObservable(this.foundProduct)
+  .pipe(
+    filter(Boolean),
+    switchMap(id => {
+      const productUrl = this.productsUrl + '/' + id;
+      return this.http.get<Product>(productUrl)
+        .pipe(
+          switchMap(product => this.getProductWithReviews(product)),
+          catchError(err => of({
+            data: undefined,
+            error: this.errorService.formatError(err)
+          } as Result<Product>))
+        );
+    }),
+    map(p => ({ data: p } as Result<Product>))
+  );
+
+
+  private productResult = toSignal(this.productResult$);
+  product = computed(() => this.productResult()?.data);
+  productError = computed(() => this.productResult()?.error);
 
   // product$ = combineLatest([
   //   this.productSelected$,
@@ -80,8 +120,10 @@ export class ProductService {
   //   catchError(error => this.handleError(error))
   // );
 
+
+
   productSelected(selectedProductId: number): void {
-    this.productSelectedSubject.next(selectedProductId);
+    // this.productSelectedSubject.next(selectedProductId);
     this.selectedProductId.set(selectedProductId);
   }
 
@@ -96,10 +138,9 @@ export class ProductService {
     } 
   }
 
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    const formattedMessage = this.errorService.formatError(error);
-    return throwError(() => formattedMessage);
-    // throw formattedMessage;
-  }
-
+  // private handleError(error: HttpErrorResponse): Observable<never> {
+  //   const formattedMessage = this.errorService.formatError(error);
+  //   return throwError(() => formattedMessage);
+  //   // throw formattedMessage;
+  // }
 }
