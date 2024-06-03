@@ -13,7 +13,7 @@ import { EMPTY, catchError, tap } from 'rxjs';
 export class ProductListComponent{
   // Just enough here for the template to compile
   pageTitle = 'Products';
-  errorMessage = '';
+
 
   private productService = inject(ProductService);
 
@@ -28,6 +28,7 @@ export class ProductListComponent{
   //   })
   // );
   products = this.productService.products;
+  errorMessage = this.productService.productsError;
 
   // Selected product id to highlight the entry
   // create a local variable that only bind from a template to a component, 
