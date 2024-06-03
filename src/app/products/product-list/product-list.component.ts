@@ -19,14 +19,15 @@ export class ProductListComponent{
 
   // Products
   // use declarative approach
-  readonly products$ = this.productService.products$
-  .pipe(
-    tap(() => console.log(`In component pipeline`)),
-    catchError(error => {
-      this.errorMessage = error;
-      return EMPTY;
-    })
-  );
+  // readonly products$ = this.productService.products$
+  // .pipe(
+  //   tap(() => console.log(`In component pipeline`)),
+  //   catchError(error => {
+  //     this.errorMessage = error;
+  //     return EMPTY;
+  //   })
+  // );
+  products = this.productService.products;
 
   // Selected product id to highlight the entry
   // create a local variable that only bind from a template to a component, 
